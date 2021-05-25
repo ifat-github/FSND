@@ -37,10 +37,11 @@ def create_app(test_config=None):
 
     @app.after_request
     def after_request(response):
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization,true')
+        response.headers.add(
+            'Access-Control-Allow-Headers',
+            'Content-Type,Authorization,true')
         response.headers.add('Access-Control-Allow-Methods', 'GET,PATCH,POST')
         return response
-
 
     @app.route('/categories')
     def retrieve_categories():
@@ -72,11 +73,11 @@ def create_app(test_config=None):
             'current_category': None
         })
 
-
     @app.route('/questions/<int:question_id>', methods=['DELETE'])
     def delete_question(question_id):
         try:
-            question = Question.query.filter(Question.id == question_id).one_or_none()
+            question = Question.query.filter(
+                Question.id == question_id).one_or_none()
 
             if question is None:
                 abort(404)
@@ -92,9 +93,8 @@ def create_app(test_config=None):
                 'total_questions': len(Question.query.all())
             })
 
-        except:
+        except BaseException:
             abort(422)
-
 
     @app.route('/questions/add', methods=['POST'])
     def create_question():
@@ -105,27 +105,39 @@ def create_app(test_config=None):
         new_category = str(body.get('category', None))
         new_difficulty = body.get('difficulty', None)
 
+        if not new_question or not new_answer or \
+                not new_category or not new_difficulty:
+            abort(422)
+
         try:
-            
-            question = Question(question=new_question, answer=new_answer, category=new_category, difficulty=new_difficulty)
+
+            question = Question(
+                question=new_question,
+                answer=new_answer,
+                category=new_category,
+                difficulty=new_difficulty)
             Question.insert(question)
 
             return jsonify({
                 'success': True
             })
 
-        except:
+        except BaseException:
             abort(422)
-
 
     @app.route('/questions/search', methods=['POST'])
     def search_question():
         body = request.get_json()
         search_term = body.get('searchTerm', None)
 
+        if not search_term:
+            abort(422)
+
         try:
             if search_term:
-                selection = Question.query.filter(Question.question.ilike('%{}%'.format(search_term))).all()
+                selection = Question.query.filter(
+                    Question.question.ilike(
+                        '%{}%'.format(search_term))).all()
                 current_questions = paginate_questions(request, selection)
 
                 return jsonify({
@@ -134,9 +146,8 @@ def create_app(test_config=None):
                     'total_questions': len(selection)
                 })
 
-        except:
+        except BaseException:
             abort(422)
-
 
     @app.route('/categories/<int:category_id>/questions')
     def get_qustions_by_category(category_id):
@@ -149,13 +160,12 @@ def create_app(test_config=None):
             'total_questions': len(selection.all())
         })
 
-
     @app.route("/quizzes", methods=['POST'])
     def get_question_for_quiz():
         if request.data:
             search_data = request.get_json()
             if (('quiz_category' in search_data and 'id' in search_data[
-                'quiz_category']) and 'previous_questions' in search_data):
+                    'quiz_category']) and 'previous_questions' in search_data):
                 questions_query = Question.query.filter_by(
                     category=search_data['quiz_category']['id']
                 ).filter(
@@ -168,7 +178,11 @@ def create_app(test_config=None):
                     result = {
                         "success": True,
                         "question": Question.format(
-                            questions_query[random.randrange(0, length_of_available_questions)]
+                            questions_query[
+                                random.randrange(
+                                    0, length_of_available_questions
+                                )
+                            ]
                         )
                     }
                 else:
