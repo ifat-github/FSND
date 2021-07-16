@@ -1,6 +1,8 @@
 # Capstone Project - Casting Agency
 
-The URL the application is hosted in is: http://127.0.0.1:5000/actors / http://127.0.0.1:5000/movies
+The URL the application is hosted in is: 
+https://ifat--casting-agency-heroku.herokuapp.com/ | https://git.heroku.com/ifat--casting-agency-heroku.git
+
 
 ### Installing Dependencies
 
